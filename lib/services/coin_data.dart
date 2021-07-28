@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:bitcoin_ticker/services/networking.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 // --
 
 const List<String> fiatList = [
@@ -32,18 +32,27 @@ const List<String> cryptoList = [
   'LTC',
 ];
 
+const coinApiKey = '1BF956E6-5AA7-4FA5-8AAB-A5C6B1EDCE05';
+const urlPrefix = 'https://rest.coinapi.io/v1/exchangerate';
+
 class CoinData {
-  Future<double> getCoinPrice(String symbol, String fiatSymbol) async {
-    const coinApiKey = '1BF956E6-5AA7-4FA5-8AAB-A5C6B1EDCE05';
-    const urlPrefix = 'https://rest.coinapi.io/v1/exchangerate';
-    String coinRequest = '$urlPrefix/$symbol/$fiatSymbol?apikey=$coinApiKey';
-    NetworkHelper netHelper = NetworkHelper(coinRequest);
+  Future getCoinRates(String fiatSymbol) async {
 
-    var curRateData = await netHelper.getData();
+    Map<String, String> allCryptoRates = {};
 
-    // setState(() {
-    //   selectedFiatValue = curRateData['rate'];
-    // });
-    return curRateData['rate'];
+    for (String symbol in cryptoList) {
+      String coinRequest = '$urlPrefix/$symbol/$fiatSymbol?apikey=$coinApiKey';
+      http.Response response = await http.get(Uri.parse(coinRequest));
+      if (response.statusCode == 200) {
+        var curRateData = jsonDecode(response.body);
+        double fRate = curRateData['rate'];
+        allCryptoRates[symbol] = fRate.toStringAsFixed(2);
+      } else {
+        print('Oops. ${response.statusCode}');
+        throw 'Problem with the get request';
+      }
+    }
+    print('Reloaded \'allCryptoRates\' for [$fiatSymbol] = $allCryptoRates');
+    return allCryptoRates;
   }
 }

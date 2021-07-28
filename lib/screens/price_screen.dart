@@ -12,29 +12,28 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  //Map<String, Map<dynamic, dynamic>> prices = {};
-  CoinData coinData = new CoinData();
-  var btcRates = new Map();
+  Map coinRates = new Map();
   String selectedFiatSymbol = 'AUD';
-  double selectedFiatValue = 0;
+  bool isWaiting = false;
 
   @override
   void initState() {
     super.initState();
     // on init of LoadingScreen, do this...
-    // for (String crypto in cryptoList) {
-    //   prices[crypto] = await getCoinPrice(crypto);
-    // }
+    refreshData();
   }
 
-  // String selectedFiatSymbol = 'AUD';
-  // String btcCode = 'BTC';
-  // double selectedFiatValue = 0;
-  // double btcValue = 0;
-
-  double fetchRateValue(String cryptoSymbol) {
-    double rate = coinData.getCoinPrice(cryptoSymbol, selectedFiatSymbol);
-    return rate;
+  void refreshData() async {
+    isWaiting = true;
+    try {
+      var data = await CoinData().getCoinRates(selectedFiatSymbol);
+      isWaiting = false;
+      setState(() {
+        coinRates = data;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   List<CoinCard> buildCryptoCards() {
@@ -44,7 +43,7 @@ class _PriceScreenState extends State<PriceScreen> {
         CoinCard(
             symbol: card,
             fiatSymbol: selectedFiatSymbol,
-            fiatValue: fetchRateValue(card), //selectedFiatValue,
+            fiatValue: isWaiting ? '???' : coinRates[card],
             onPress: () {
               print('The \'$card\' card was pressed.');
             }),
@@ -78,9 +77,9 @@ class _PriceScreenState extends State<PriceScreen> {
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: buildCryptoCards(),
           ),
           Container(
@@ -94,14 +93,11 @@ class _PriceScreenState extends State<PriceScreen> {
               ),
               value: selectedFiatSymbol,
               items: buildFiatMenu(), // build a dropdown menu from big list
-              onChanged: (symbol) async {
-                double newVal =
-                    await coinData.getCoinPrice('LTC', selectedFiatSymbol);
-                print('Picker-selected FiatSymbol = $selectedFiatSymbol');
-                print(selectedFiatValue);
+              onChanged: (symbol) {
+                print('Picker-selected FiatSymbol = $symbol');
                 setState(() {
                   selectedFiatSymbol = symbol;
-                  selectedFiatValue = newVal;
+                  refreshData();
                 });
               },
             ),

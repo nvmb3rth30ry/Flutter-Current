@@ -8,7 +8,7 @@ class CoinCard extends StatelessWidget {
   final String symbol;
   final Function onPress;
   final String fiatSymbol;
-  final double fiatValue;
+  final String fiatValue;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class CoinCard extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
             child: Text(
-              '1 $symbol = ??? ${formatNumber(fiatValue.toStringAsFixed(2))} $fiatSymbol',
+              '1 $symbol = $fiatValue $fiatSymbol',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
