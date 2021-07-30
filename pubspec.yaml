@@ -1,9 +1,10 @@
-name: bitcoin_ticker
-description: A new Flutter application.
+name: flash_chat
+description: A Flutter chat application.
+
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.1.0<3.0.0"
 
 dependencies:
   flutter:
@@ -14,10 +15,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  http: ^0.13.3
-  flutter_spinkit: ^5.0.0
-  #number_display: ^3.0.0
 
 flutter:
-
   uses-material-design: true
+
+  assets:
+  - images/
