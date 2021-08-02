@@ -29,12 +29,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     //   parent: aniController,
     //   curve: Curves.easeInQuart,
     // );
+    animation = ColorTween(begin: Colors.blueGrey, end: Colors.white).animate(aniController);
 
     aniController.forward();
     aniController.addListener(() {
       setState(() {});
       n++;
-      print('iter #${n.toString()} : ${animation.value.toString()}');
+      print('iter #${n.toString()} : ${animation.value}');
     });
 
     // // // Endless ping=pong animation loop // // //
@@ -57,7 +58,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: animation.value,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -70,7 +71,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   tag: 'logo',
                   child: Container(
                     child: Image.asset('images/logo.png'),
-                    height: animation.value * 100.0, //60.0,
+                    height: 60.0, // aniController.value * 100.0,
                   ),
                 ),
                 Text(
