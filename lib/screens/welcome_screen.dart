@@ -11,14 +11,17 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
+  // Object-properties needed to enable custom animation
   AnimationController aniController;
   Animation animation;
 
+  // INIT logic to instantly do animation on load
   @override
   void initState() {
     super.initState();
     int n = 0;
 
+    // Controller methods needed to enable Welcome Screen opening anim
     aniController = AnimationController(
       vsync: this,
       duration: Duration(seconds: 2),
@@ -29,14 +32,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     //   parent: aniController,
     //   curve: Curves.easeInQuart,
     // );
-    animation = ColorTween(begin: Colors.blueGrey, end: Colors.white).animate(aniController);
-
     aniController.forward();
     aniController.addListener(() {
       setState(() {});
       n++;
       print('iter #${n.toString()} : ${animation.value}');
     });
+
+    // Opening color-transition animation settings
+    animation = ColorTween(begin: Colors.blueGrey, end: Colors.white)
+        .animate(aniController);
 
     // // // Endless ping=pong animation loop // // //
     // aniController.addStatusListener((status) {
@@ -51,10 +56,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   // Ensure animation control object is destroyed when no longer used
   @override
   void dispose() {
-    aniController.dispose();
     super.dispose();
+    aniController.dispose();
   }
 
+  // Widget tree
   @override
   Widget build(BuildContext context) {
     return Scaffold(
