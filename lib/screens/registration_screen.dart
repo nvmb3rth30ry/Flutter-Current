@@ -72,8 +72,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               label: 'Register',
               onPress: () async {
                 //Implement registration functionality.
-                print('Rego - Email: $email');
-                print('Rego - Pword: $password');
                 try {
                   final newUser = await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:flash_chat/components/lozenge_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // --
 
 class LoginScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _auth = FirebaseAuth.instance;
   String email;
   String password;
 
@@ -66,10 +68,17 @@ class _LoginScreenState extends State<LoginScreen> {
             LozengeButton(
               bgColour: Colors.lightBlueAccent,
               label: 'Log In',
-              onPress: () {
-                //Implement login functionality.
-                print('do dat <log-in> thang.');
-                Navigator.pushNamed(context, ChatScreen.id);
+              onPress: () async {
+                //Authenticate user for login.
+                try {
+                  final user = await _auth.signInWithEmailAndPassword(
+                      email: email, password: password);
+                  if (user != null) {
+                    Navigator.pushNamed(context, ChatScreen.id);
+                  }
+                } catch (e) {
+                  print(e);
+                }
               },
             ),
           ],

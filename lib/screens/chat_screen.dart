@@ -4,6 +4,8 @@ import 'package:flash_chat/constants.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// ABC TV Sydney Main Control Room : 02 8333 1620
+
 class ChatScreen extends StatefulWidget {
   static String id = 'chat';
 
@@ -18,9 +20,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void getCurrentUser() async {
     final user = _auth.currentUser;
-    if (user != null) {
-      loggedInUser = user;
-      print('Logged In User : $loggedInUser');
+    try {
+      if (user != null) {
+        loggedInUser = user;
+        print('Logged In User : $loggedInUser');
+      }
+    } catch (e) {
+      print (e) ;
     }
   }
 
@@ -36,9 +42,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
-    getCurrentUser();
+    getCurrentUser();  // load user
   }
 
   @override
@@ -47,12 +53,14 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         leading: null,
         actions: <Widget>[
-          IconButton(
+          IconButton(   // LOGOUT button
               icon: Icon(Icons.close),
               onPressed: () {
                 //Implement logout functionality
-                clearUserInput();
-              }),
+                _auth.signOut();
+                Navigator.pop(context);
+              },
+          ),
         ],
         title: Text('⚡️Chat'),
         backgroundColor: Colors.lightBlueAccent,
