@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flash_chat/components/lozenge_button.dart';
 import 'package:flash_chat/screens/login_screen.dart';
 import 'package:flash_chat/screens/registration_screen.dart';
-import 'package:flutter/material.dart';
+// --
 
 class WelcomeScreen extends StatefulWidget {
   static String id = 'welcome';
@@ -19,7 +22,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   void initState() {
     super.initState();
-    int n = 0;
 
     // Controller methods needed to enable Welcome Screen opening anim
     aniController = AnimationController(
@@ -27,30 +29,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       duration: Duration(seconds: 2),
       upperBound: 1,
     );
-
-    // animation = CurvedAnimation(
-    //   parent: aniController,
-    //   curve: Curves.easeInQuart,
-    // );
     aniController.forward();
     aniController.addListener(() {
       setState(() {});
-      n++;
-      print('iter #${n.toString()} : ${animation.value}');
     });
 
     // Opening color-transition animation settings
     animation = ColorTween(begin: Colors.blueGrey, end: Colors.white)
         .animate(aniController);
-
-    // // // Endless ping=pong animation loop // // //
-    // aniController.addStatusListener((status) {
-    //   if (status == AnimationStatus.completed) {
-    //     aniController.reverse(from: 1);
-    //   } else if (status == AnimationStatus.dismissed) {
-    //     aniController.forward();
-    //   }
-    // });
   }
 
   // Ensure animation control object is destroyed when no longer used
@@ -80,11 +66,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     height: 60.0, // aniController.value * 100.0,
                   ),
                 ),
-                Text(
-                  'Flash Chat',
+                DefaultTextStyle(
                   style: TextStyle(
                     fontSize: 45.0,
                     fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                  ),
+                  child: AnimatedTextKit(
+                    animatedTexts: [
+                      TypewriterAnimatedText(
+                        'Flash Chat',
+                        speed: Duration(milliseconds: 150),
+                      ),
+                    ],
+                    isRepeatingAnimation: true,
+                    totalRepeatCount: 2,
+                    //pause: Duration(milliseconds: 1000), // wait between blurbs
+                    // onTap: (){}, // tap logic if ya needs it
                   ),
                 ),
               ],
@@ -92,43 +90,21 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             SizedBox(
               height: 48.0,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                elevation: 5.0,
-                color: Colors.lightBlueAccent,
-                borderRadius: BorderRadius.circular(30.0),
-                child: MaterialButton(
-                  onPressed: () {
-                    //Go to login screen.
-                    Navigator.pushNamed(context, LoginScreen.id);
-                  },
-                  minWidth: 200.0,
-                  height: 42.0,
-                  child: Text(
-                    'Log In',
-                  ),
-                ),
-              ),
+            LozengeButton(
+              bgColour: Colors.lightBlueAccent,
+              label: 'Log In',
+              onPress: () {
+                //Go to login screen.
+                Navigator.pushNamed(context, LoginScreen.id);
+              },
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(30.0),
-                elevation: 5.0,
-                child: MaterialButton(
-                  onPressed: () {
-                    //Go to registration screen.
-                    Navigator.pushNamed(context, RegistrationScreen.id);
-                  },
-                  minWidth: 200.0,
-                  height: 42.0,
-                  child: Text(
-                    'Register',
-                  ),
-                ),
-              ),
+            LozengeButton(
+              bgColour: Colors.blueAccent,
+              label: 'Register',
+              onPress: () {
+                //Go to registration screen.
+                Navigator.pushNamed(context, RegistrationScreen.id);
+              },
             ),
           ],
         ),

@@ -1,6 +1,8 @@
 import 'package:flash_chat/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
+// import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat';
@@ -10,7 +12,17 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final _auth = FirebaseAuth.instance;
+  User loggedInUser;
   String _userChatInput = '';
+
+  void getCurrentUser() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      loggedInUser = user;
+      print('Logged In User : $loggedInUser');
+    }
+  }
 
   void updateUserText() {
     //
@@ -21,6 +33,12 @@ class _ChatScreenState extends State<ChatScreen> {
   void clearUserInput() {
     //
     print('User TextField clears now.');
+  }
+
+  @override
+  void initState() async {
+    super.initState();
+    getCurrentUser();
   }
 
   @override
