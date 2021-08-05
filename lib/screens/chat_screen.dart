@@ -1,8 +1,7 @@
-import 'package:flash_chat/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
-// import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ABC TV Sydney Main Control Room : 02 8333 1620
 
@@ -15,8 +14,9 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
   User loggedInUser;
-  String _userChatInput = '';
+  String messageText;
 
   void getCurrentUser() async {
     final user = _auth.currentUser;
@@ -26,7 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
         print('Logged In User : $loggedInUser');
       }
     } catch (e) {
-      print (e) ;
+      print(e);
     }
   }
 
@@ -44,7 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    getCurrentUser();  // load user
+    getCurrentUser(); // load user
   }
 
   @override
@@ -53,13 +53,14 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         leading: null,
         actions: <Widget>[
-          IconButton(   // LOGOUT button
-              icon: Icon(Icons.close),
-              onPressed: () {
-                //Implement logout functionality
-                _auth.signOut();
-                Navigator.pop(context);
-              },
+          IconButton(
+            // LOGOUT button
+            icon: Icon(Icons.close),
+            onPressed: () {
+              //Implement logout functionality
+              _auth.signOut();
+              Navigator.pop(context);
+            },
           ),
         ],
         title: Text('⚡️Chat'),
@@ -79,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: TextField(
                       onChanged: (value) {
                         //Do something with the user input.
-                        _userChatInput = value;
+                        messageText = value;
                       },
                       decoration: kMessageTextFieldDecoration,
                     ),
@@ -87,7 +88,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   TextButton(
                     onPressed: () {
                       //Implement send functionality.
-                      print('User says: \"$_userChatInput\"');
+                      //messageText + loggedInUser.email
+                      _firestore.collection('messages').add(
+                          {'text': messageText, 'sender': loggedInUser.email});
+                      // console test output:
+                      print('User says: \"$messageText\"');
                       updateUserText();
                     },
                     child: Text(
