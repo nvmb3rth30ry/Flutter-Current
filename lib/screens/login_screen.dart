@@ -4,7 +4,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:flash_chat/components/lozenge_button.dart';
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 // --
 
 class LoginScreen extends StatefulWidget {
@@ -20,12 +20,18 @@ class _LoginScreenState extends State<LoginScreen> {
   String password;
   bool showSpinner = false;
 
+  final spinkit = SpinKitCubeGrid(
+    color: Colors.blue,
+    size: 50.0,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
+        progressIndicator: spinkit,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
