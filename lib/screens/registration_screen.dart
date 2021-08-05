@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:flash_chat/constants.dart';
@@ -19,11 +20,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String password;
   bool showSpinner = false;
 
+  final spinkit = SpinKitDualRing(
+    color: Colors.pink,
+    size: 60.0,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: ModalProgressHUD(
+        progressIndicator: spinkit,
         inAsyncCall: showSpinner,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.0),

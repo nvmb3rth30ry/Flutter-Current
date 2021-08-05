@@ -30,6 +30,24 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void messageStream() {
+    _firestore.collection('messages').snapshots().forEach((var snap) {
+      for (var msg in snap.docs) {
+        print('Snap.msg.text = ${msg.get('text')}\n===');
+        print('Snap.msg.data = ${msg.data()}\n>>>>><<<<<');
+      }
+    });
+  }
+
+  // void getMessages() async {
+  //   final messages = await _firestore.collection('messages').get();
+  //   for (var msg in messages.docs) {
+  //     //print('Document = [${msg['sender']}] says \'${msg['text']}\'');
+  //     print(msg.get('text'));
+  //     print(msg.data());
+  //   }
+  // }
+
   void updateUserText() {
     //
     print('User TextField clears now, ideally.');
@@ -92,8 +110,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       _firestore.collection('messages').add(
                           {'text': messageText, 'sender': loggedInUser.email});
                       // console test output:
-                      print('User says: \"$messageText\"');
-                      updateUserText();
+                      // print('User says: \"$messageText\"');
+                      // updateUserText();
+                      //getMessages();
+                      messageStream();
                     },
                     child: Text(
                       'Send',
