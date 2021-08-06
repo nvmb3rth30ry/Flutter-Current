@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -89,6 +90,38 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('messages').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  // if initial snap null, show spinner
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.lightBlueAccent,
+                    ),
+                  );
+                }
+                final messages = snapshot.data.docs;
+                List<ChatBubble> chatBubbles = [];
+                for (var msg in messages) {
+                  final msgText = msg['text']; // can use .get('key') too
+                  final msgSender = msg['sender'];
+                  final chatBubble = ChatBubble(
+                    text: msgText,
+                    sender: msgSender,
+                  );
+                  chatBubbles.add(chatBubble);
+                }
+                return Expanded(
+                  child: ListView(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
+                    itemExtent: 70.0,
+                    children: chatBubbles,
+                  ),
+                );
+              },
+            ),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -124,6 +157,35 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// custom bubble
+class ChatBubble extends StatelessWidget {
+  ChatBubble({this.text, this.sender});
+
+  final String text;
+  final String sender;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Material(
+        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+        color: Colors.lightGreen,
+        child: Text(
+          text,
+          textAlignVertical: TextAlignVertical.center,
+          style: TextStyle(
+            fontSize: 18.0,
+            //fontFamily: nnn,
+            color: Colors.black,
+            decoration: TextDecoration.?,
+          ),
         ),
       ),
     );
