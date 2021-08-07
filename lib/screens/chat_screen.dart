@@ -1,8 +1,15 @@
+import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flash_chat/screens/welcome_screen.dart'
+    '';
+// global properties
+final _firestore = FirebaseFirestore.instance;
+User loggedInUser = null;
+
 
 // ABC TV Sydney Main Control Room : 02 8333 1620
 
@@ -16,7 +23,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  User loggedInUser;
+  final messageTextController = TextEditingController();
   String messageText;
 
   void getCurrentUser() async {
@@ -31,35 +38,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void messageStream() {
-    _firestore.collection('messages').snapshots().forEach((var snap) {
-      for (var msg in snap.docs) {
-        print('Snap.msg.text = ${msg.get('text')}\n===');
-        print('Snap.msg.data = ${msg.data()}\n>>>>><<<<<');
-      }
-    });
-  }
-
-  // void getMessages() async {
-  //   final messages = await _firestore.collection('messages').get();
-  //   for (var msg in messages.docs) {
-  //     //print('Document = [${msg['sender']}] says \'${msg['text']}\'');
-  //     print(msg.get('text'));
-  //     print(msg.data());
-  //   }
-  // }
-
-  void updateUserText() {
-    //
-    print('User TextField clears now, ideally.');
-    print('and string moves to chat display box.');
-  }
-
-  void clearUserInput() {
-    //
-    print('User TextField clears now.');
-  }
-
   @override
   void initState() {
     super.initState();
@@ -71,6 +49,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: null,
+        automaticallyImplyLeading: false,
         actions: <Widget>[
           IconButton(
             // LOGOUT button
@@ -78,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () {
               //Implement logout functionality
               _auth.signOut();
-              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, WelcomeScreen.id);
             },
           ),
         ],
@@ -90,38 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('messages').snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  // if initial snap null, show spinner
-                  return Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.lightBlueAccent,
-                    ),
-                  );
-                }
-                final messages = snapshot.data.docs;
-                List<ChatBubble> chatBubbles = [];
-                for (var msg in messages) {
-                  final msgText = msg['text']; // can use .get('key') too
-                  final msgSender = msg['sender'];
-                  final chatBubble = ChatBubble(
-                    text: msgText,
-                    sender: msgSender,
-                  );
-                  chatBubbles.add(chatBubble);
-                }
-                return Expanded(
-                  child: ListView(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
-                    itemExtent: 70.0,
-                    children: chatBubbles,
-                  ),
-                );
-              },
-            ),
+            MessagesStream(),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -129,6 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      controller: messageTextController,
                       onChanged: (value) {
                         //Do something with the user input.
                         messageText = value;
@@ -138,15 +87,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      //Implement send functionality.
-                      //messageText + loggedInUser.email
-                      _firestore.collection('messages').add(
-                          {'text': messageText, 'sender': loggedInUser.email});
-                      // console test output:
-                      // print('User says: \"$messageText\"');
-                      // updateUserText();
-                      //getMessages();
-                      messageStream();
+                      _firestore.collection('messages').add({
+                        'text': messageText,
+                        'sender': loggedInUser.email,
+                        'time': FieldValue.serverTimestamp(),
+                      });
+                      messageTextController.clear(); // remove what's just been entered
                     },
                     child: Text(
                       'Send',
@@ -163,31 +109,92 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-// custom bubble
+
+// Messages Stream handler fetcher class
+class MessagesStream extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore.collection('messages').orderBy('time').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          // if initial snap null, show spinner
+          return Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.lightBlueAccent,
+            ),
+          );
+        }
+        final messages = snapshot.data.docs;
+        List<ChatBubble> chatBubbles = [];
+        for (var msg in messages) {
+          final msgText = msg['text']; // can use .get('key') too
+          final msgSender = msg['sender'];
+          final isMe = msgSender == loggedInUser.email;  // who? me?
+          final chatBubble = ChatBubble(
+            text: msgText,
+            sender: msgSender,
+            isMe: isMe,
+          );
+          chatBubbles.add(chatBubble);
+        }
+        return Expanded(
+          child: ListView(
+            padding:
+            EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0,),
+            children: chatBubbles,
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+// custom chat bubble
 class ChatBubble extends StatelessWidget {
-  ChatBubble({this.text, this.sender});
+  ChatBubble({this.text, this.sender, this.isMe});
 
   final String text;
   final String sender;
+  final bool isMe;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Material(
-        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-        color: Colors.lightGreen,
-        child: Text(
-          text,
-          textAlignVertical: TextAlignVertical.center,
-          style: TextStyle(
-            fontSize: 18.0,
-            //fontFamily: nnn,
-            color: Colors.black,
-            decoration: TextDecoration.?,
+    return Column(
+      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 14.0,
+          child: Text(
+            sender,
+            style: TextStyle(
+            fontSize: 12.0,
+            fontWeight: FontWeight.w900,
+            color: Colors.black38,
+          ),
           ),
         ),
-      ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(4.0, 2.0, 4.0, 12.0),
+          child: Material(
+            elevation: 2.0,
+            borderRadius: isMe ? kBubbleRadiusSelf : kBubbleRadiusOther,
+            color: isMe ? Colors.lime : Colors.lightBlue,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0,),
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: 18.0,
+                  //fontFamily: nnn,
+                  color: isMe ? Colors.black : Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

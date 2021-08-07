@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash_chat/screens/welcome_screen.dart';
 import 'package:flash_chat/screens/login_screen.dart';
 import 'package:flash_chat/screens/registration_screen.dart';
@@ -12,6 +13,9 @@ void main() async {
 }
 
 class FlashChat extends StatelessWidget {
+
+  final _auth = FirebaseAuth.instance;  // Init Firebase Auth to keep existing session
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,7 +25,8 @@ class FlashChat extends StatelessWidget {
       //   ),
       // ),
       //home: WelcomeScreen(),
-      initialRoute: WelcomeScreen.id,
+      initialRoute: _auth.currentUser != null ? ChatScreen.id : WelcomeScreen.id,
+      // initialRoute: WelcomeScreen.id,
       routes: {
         WelcomeScreen.id: (context) => WelcomeScreen(),
         RegistrationScreen.id: (context) => RegistrationScreen(),

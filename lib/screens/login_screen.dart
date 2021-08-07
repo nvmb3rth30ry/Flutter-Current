@@ -38,11 +38,13 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Hero(
-                tag: 'logo',
-                child: Container(
-                  height: 200.0,
-                  child: Image.asset('images/logo.png'),
+              Flexible( // be flexible about the fixed [height] dim.
+                child: Hero(
+                  tag: 'logo',
+                  child: Container(
+                    height: 200.0,
+                    child: Image.asset('images/logo.png'),
+                  ),
                 ),
               ),
               SizedBox(
@@ -91,7 +93,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       setState(() {
                         showSpinner = false;
                       });
-                      Navigator.pushNamed(context, ChatScreen.id);
+                      // Go to Chat Screen but hide Back button
+                      Navigator.pushNamedAndRemoveUntil(context, ChatScreen.id,
+                              (Route<dynamic> route) => false);
+                      // Navigator.pushNamed(context, ChatScreen.id);
                     }
                   } catch (e) {
                     print(e);

@@ -9,6 +9,9 @@ const kSendButtonTextStyle = TextStyle(
 const kMessageTextFieldDecoration = InputDecoration(
   contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
   hintText: 'Type your message here...',
+  hintStyle: TextStyle(
+    color: Color(0xffa3b3bf),
+  ),
   border: InputBorder.none,
 );
 
@@ -40,3 +43,6 @@ const kTextFieldDecoration = InputDecoration(
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
 );
+
+const kBubbleRadiusOther = BorderRadius.only(topRight: Radius.circular(16.0), bottomRight: Radius.circular(16.0), bottomLeft: Radius.circular(16.0), topLeft: Radius.zero);
+const kBubbleRadiusSelf = BorderRadius.only(topRight: Radius.zero, bottomRight: Radius.circular(16.0), bottomLeft: Radius.circular(16.0), topLeft: Radius.circular(16.0));
